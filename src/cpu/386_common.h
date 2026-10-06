@@ -498,8 +498,12 @@ fastreadl_fetch(uint32_t a)
 
     if (cpu_16bitbus || ((a & 0xFFF) > 0xFFC)) {
         ret = fastreadw_fetch(a);
-        if (!cpu_state.abrt && (opcode_length[ret & 0xff] > 2))
+        /* Read only bytes the instruction has: a 3-byte one at the last
+         * three bytes of a page must not touch the next page. */
+        if (!cpu_state.abrt && (opcode_length[ret & 0xff] > 3))
             ret |= ((uint32_t) fastreadw(a + 2) << 16);
+        else if (!cpu_state.abrt && (opcode_length[ret & 0xff] == 3))
+            ret |= ((uint32_t) fastreadb(a + 2) << 16);
     } else if (cpu_state.abrt)
         ret = 0;
     else {
@@ -571,8 +575,10 @@ fastreadl_fetch(uint32_t a)
         return *((uint32_t *) (((uintptr_t) &pccache2[a] & 0x00000000ffffffffULL) | ((uintptr_t) &pccache2[0] & 0xffffffff00000000ULL)));
     }
     val = fastreadw_fetch(a);
-    if (opcode_length[val & 0xff] > 2)
+    if (opcode_length[val & 0xff] > 3)
         val |= (fastreadw(a + 2) << 16);
+    else if (opcode_length[val & 0xff] == 3)
+        val |= (fastreadb(a + 2) << 16);
     return val;
 }
 #endif
