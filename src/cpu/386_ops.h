@@ -235,17 +235,40 @@ checkio(uint32_t port, int mask)
 #else
 #    include "x86_ops_flag.h"
 #endif
-#ifdef OPS_286_386
-#    include "x86_ops_fpu_2386.h"
+#ifdef GEN386PM_NO_FPU
+/* No FPU, as a 486SX (and z486 with its x87 off): an ESC instruction raises
+ * #NM when CR0.EM or CR0.TS is set, else decodes its operand and does
+ * nothing (no memory access). */
+#define STUB_ESCAPE(name, fetch_ea) \
+    static int name(uint32_t fetchdat) { \
+        if (cpu_state.CR0.l & 0x0C) { x86_int(7); return 1; } \
+        fetch_ea(fetchdat); \
+        return 0; \
+    }
+STUB_ESCAPE(opESCAPE_d8_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_d8_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_d9_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_d9_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_da_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_da_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_db_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_db_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_dc_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_dc_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_dd_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_dd_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_de_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_de_a32, fetch_ea_32)
+STUB_ESCAPE(opESCAPE_df_a16, fetch_ea_16) STUB_ESCAPE(opESCAPE_df_a32, fetch_ea_32)
+#undef STUB_ESCAPE
 #else
-#    include "x86_ops_fpu.h"
+#    ifdef OPS_286_386
+#        include "x86_ops_fpu_2386.h"
+#    else
+#        include "x86_ops_fpu.h"
+#    endif
 #endif
 #include "x86_ops_inc_dec.h"
 #include "x86_ops_int.h"
 #include "x86_ops_io.h"
 #include "x86_ops_jump.h"
 #include "x86_ops_misc.h"
-#include "x87_ops.h"
+#ifndef GEN386PM_NO_FPU
+#    include "x87_ops.h"
+#endif
 #ifndef OPS_286_386
 #    include "x86_ops_i686.h"
 #    include "x86_ops_mmx.h"
