@@ -241,6 +241,8 @@ opXADD_b_a16(uint32_t fetchdat)
         return 1;
     setadd8(src, dest);
     setr8(cpu_reg, dest);
+    if (cpu_mod == 3)
+        setr8(cpu_rm, temp);    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
@@ -263,6 +265,8 @@ opXADD_b_a32(uint32_t fetchdat)
         return 1;
     setadd8(src, dest);
     setr8(cpu_reg, dest);
+    if (cpu_mod == 3)
+        setr8(cpu_rm, temp);    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
@@ -286,6 +290,8 @@ opXADD_w_a16(uint32_t fetchdat)
         return 1;
     setadd16(src, dest);
     cpu_state.regs[cpu_reg].w = dest;
+    if (cpu_mod == 3)
+        cpu_state.regs[cpu_rm].w = temp;    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
@@ -308,6 +314,8 @@ opXADD_w_a32(uint32_t fetchdat)
         return 1;
     setadd16(src, dest);
     cpu_state.regs[cpu_reg].w = dest;
+    if (cpu_mod == 3)
+        cpu_state.regs[cpu_rm].w = temp;    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
@@ -331,6 +339,8 @@ opXADD_l_a16(uint32_t fetchdat)
         return 1;
     setadd32(src, dest);
     cpu_state.regs[cpu_reg].l = dest;
+    if (cpu_mod == 3)
+        cpu_state.regs[cpu_rm].l = temp;    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
@@ -353,6 +363,8 @@ opXADD_l_a32(uint32_t fetchdat)
         return 1;
     setadd32(src, dest);
     cpu_state.regs[cpu_reg].l = dest;
+    if (cpu_mod == 3)
+        cpu_state.regs[cpu_rm].l = temp;    /* DEST is written last (xadd r, r) */
     CLOCK_CYCLES((cpu_mod == 3) ? 3 : 4);
     return 0;
 }
