@@ -1888,7 +1888,7 @@ pmodeiret(int is32)
         cpu_state.seg_cs.access |= 0x80;
         cpu_state.seg_cs.ar_high = 0x10;
         CS                       = seg;
-        cpu_state.flags          = (cpu_state.flags & 0x3000) | (tempflags & 0xcfd5) | 2;
+        cpu_state.flags          = (cpu_state.flags & 0x3000) | (tempflags & 0x4fd5) | 2;   /* bit 15 reserved */
         cycles -= timing_iret_rm;
         return;
     }
@@ -1983,7 +1983,7 @@ pmodeiret(int is32)
             cpu_cur_status |= CPU_STATUS_NOTFLATSS;
             use32 = 0;
             cpu_cur_status &= ~CPU_STATUS_USE32;
-            cpu_state.flags = (tempflags & 0xffd5) | 2;
+            cpu_state.flags = (tempflags & 0x7fd5) | 2;   /* bit 15 reserved */
             cycles -= timing_iret_v86;
             return;
         }
@@ -2165,7 +2165,7 @@ pmodeiret(int is32)
         cycles -= timing_iret_pm_outer;
     }
     cpu_state.pc    = newpc;
-    cpu_state.flags = (cpu_state.flags & ~flagmask) | (tempflags & flagmask & 0xffd5) | 2;
+    cpu_state.flags = (cpu_state.flags & ~flagmask) | (tempflags & flagmask & 0x7fd5) | 2;   /* bit 15 reserved */
     if (is32)
         cpu_state.eflags = (cpu_state.eflags & (uint16_t) ~eflagmask) |
                            ((tempflags >> 16) & eflagmask);

@@ -231,12 +231,12 @@ opIRET(UNUSED(uint32_t fetchdat))
             if (stack32) {
                 cpu_state.pc    = readmemw(ss, ESP);
                 new_cs          = readmemw(ss, ESP + 2);
-                cpu_state.flags = (readmemw(ss, ESP + 4) & 0xffd5) | 2;
+                cpu_state.flags = (readmemw(ss, ESP + 4) & 0x7fd5) | 2;
                 ESP += 6;
             } else {
                 cpu_state.pc    = readmemw(ss, SP);
                 new_cs          = readmemw(ss, ((SP + 2) & 0xffff));
-                cpu_state.flags = (readmemw(ss, ((SP + 4) & 0xffff)) & 0xffd5) | 2;
+                cpu_state.flags = (readmemw(ss, ((SP + 4) & 0xffff)) & 0x7fd5) | 2;
                 SP += 6;
             }
             op_loadcs(new_cs);
@@ -273,13 +273,13 @@ opIRETD(UNUSED(uint32_t fetchdat))
         if (stack32) {
             cpu_state.pc     = readmeml(ss, ESP);
             new_cs           = readmemw(ss, ESP + 4);
-            cpu_state.flags  = (readmemw(ss, ESP + 8) & 0xffd5) | 2;
+            cpu_state.flags  = (readmemw(ss, ESP + 8) & 0x7fd5) | 2;
             cpu_state.eflags = readmemw(ss, ESP + 10);
             ESP += 12;
         } else {
             cpu_state.pc     = readmeml(ss, SP);
             new_cs           = readmemw(ss, ((SP + 4) & 0xffff));
-            cpu_state.flags  = (readmemw(ss, (SP + 8) & 0xffff) & 0xffd5) | 2;
+            cpu_state.flags  = (readmemw(ss, (SP + 8) & 0xffff) & 0x7fd5) | 2;
             cpu_state.eflags = readmemw(ss, (SP + 10) & 0xffff);
             SP += 12;
         }
