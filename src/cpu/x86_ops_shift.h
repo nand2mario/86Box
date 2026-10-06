@@ -934,12 +934,15 @@ opD3_l_a32(uint32_t fetchdat)
 }
 
 #define SHLD_w()                                              \
+    /* The destination is read even for a 0 count, as the 386 microcode does\
+     * (z486): a memory operand can fault. */                 \
+    uint16_t tempw = geteaw();                                \
+    if (cpu_state.abrt)                                       \
+        return 1;                                             \
     if (count) {                                              \
         int      tempc;                                       \
         uint32_t templ;                                       \
-        uint16_t tempw = geteaw();                            \
-        if (cpu_state.abrt)                                   \
-            return 1;                                         \
+        int      tempo = (tempw >> 15) & 1;                   \
         tempc = ((tempw << (count - 1)) & (1 << 15)) ? 1 : 0; \
         templ = (tempw << 16) | cpu_state.regs[cpu_reg].w;    \
         if (count <= 16)                                      \
@@ -953,14 +956,20 @@ opD3_l_a32(uint32_t fetchdat)
         flags_rebuild();                                      \
         if (tempc)                                            \
             cpu_state.flags |= C_FLAG;                        \
+        /* OF: a 1-bit shift sets it on a sign change (PRM) */\
+        if (((tempw >> 15) & 1) != tempo)                     \
+            cpu_state.flags |= V_FLAG;                        \
     }
 
 #define SHLD_l()                                                                \
+    /* The destination is read even for a 0 count, as the 386 microcode does    \
+     * (z486): a memory operand can fault. */                                   \
+    uint32_t templ = geteal();                                                  \
+    if (cpu_state.abrt)                                                         \
+        return 1;                                                               \
     if (count) {                                                                \
         int      tempc;                                                         \
-        uint32_t templ = geteal();                                              \
-        if (cpu_state.abrt)                                                     \
-            return 1;                                                           \
+        int      tempo = (templ >> 31) & 1;                                     \
         tempc = ((templ << (count - 1)) & (1 << 31)) ? 1 : 0;                   \
         templ = (templ << count) | (cpu_state.regs[cpu_reg].l >> (32 - count)); \
         seteal(templ);                                                          \
@@ -970,15 +979,21 @@ opD3_l_a32(uint32_t fetchdat)
         flags_rebuild();                                                        \
         if (tempc)                                                              \
             cpu_state.flags |= C_FLAG;                                          \
+        /* OF: a 1-bit shift sets it on a sign change (PRM) */                  \
+        if (((templ >> 31) & 1) != tempo)                                       \
+            cpu_state.flags |= V_FLAG;                                          \
     }
 
 #define SHRD_w()                                           \
+    /* The destination is read even for a 0 count, as the 386 microcode does\
+     * (z486): a memory operand can fault. */              \
+    uint16_t tempw = geteaw();                             \
+    if (cpu_state.abrt)                                    \
+        return 1;                                          \
     if (count) {                                           \
         int      tempc;                                    \
         uint32_t templ;                                    \
-        uint16_t tempw = geteaw();                         \
-        if (cpu_state.abrt)                                \
-            return 1;                                      \
+        int      tempo = (tempw >> 15) & 1;                \
         tempc = (tempw >> (count - 1)) & 1;                \
         templ = tempw | (cpu_state.regs[cpu_reg].w << 16); \
         tempw = templ >> count;                            \
@@ -989,14 +1004,20 @@ opD3_l_a32(uint32_t fetchdat)
         flags_rebuild();                                   \
         if (tempc)                                         \
             cpu_state.flags |= C_FLAG;                     \
+        /* OF: a 1-bit shift sets it on a sign change (PRM) */\
+        if (((tempw >> 15) & 1) != tempo)                  \
+            cpu_state.flags |= V_FLAG;                     \
     }
 
 #define SHRD_l()                                                                \
+    /* The destination is read even for a 0 count, as the 386 microcode does    \
+     * (z486): a memory operand can fault. */                                   \
+    uint32_t templ = geteal();                                                  \
+    if (cpu_state.abrt)                                                         \
+        return 1;                                                               \
     if (count) {                                                                \
         int      tempc;                                                         \
-        uint32_t templ = geteal();                                              \
-        if (cpu_state.abrt)                                                     \
-            return 1;                                                           \
+        int      tempo = (templ >> 31) & 1;                                     \
         tempc = (templ >> (count - 1)) & 1;                                     \
         templ = (templ >> count) | (cpu_state.regs[cpu_reg].l << (32 - count)); \
         seteal(templ);                                                          \
@@ -1006,6 +1027,9 @@ opD3_l_a32(uint32_t fetchdat)
         flags_rebuild();                                                        \
         if (tempc)                                                              \
             cpu_state.flags |= C_FLAG;                                          \
+        /* OF: a 1-bit shift sets it on a sign change (PRM) */                  \
+        if (((templ >> 31) & 1) != tempo)                                       \
+            cpu_state.flags |= V_FLAG;                                          \
     }
 
 #define opSHxD(operation)                                                                   \
