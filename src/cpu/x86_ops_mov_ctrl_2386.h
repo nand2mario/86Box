@@ -321,7 +321,7 @@ opMOV_DRx_r_a16(uint32_t fetchdat)
             }
             fallthrough;
         case 7:
-            dr[7] = cpu_state.regs[cpu_rm].l | 0x00000400;
+            dr[7] = cpu_state.regs[cpu_rm].l | (is586 ? 0x00000400 : 0);
             break;
         default:
             x86illegal();
@@ -364,7 +364,7 @@ opMOV_DRx_r_a32(uint32_t fetchdat)
             }
             fallthrough;
         case 7:
-            dr[7] = cpu_state.regs[cpu_rm].l | 0x00000400;
+            dr[7] = cpu_state.regs[cpu_rm].l | (is586 ? 0x00000400 : 0);
             break;
         default:
             x86illegal();
