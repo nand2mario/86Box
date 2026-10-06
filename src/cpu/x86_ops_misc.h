@@ -871,6 +871,11 @@ opCLTS(UNUSED(uint32_t fetchdat))
 static int
 opINVD(UNUSED(uint32_t fetchdat))
 {
+    /* Privileged, as WBINVD (Intel486 PRM: #GP(0) if CPL is not 0). */
+    if ((CPL || (cpu_state.eflags & VM_FLAG)) && (cr0 & 1)) {
+        x86gpf(NULL, 0);
+        return 1;
+    }
     CLOCK_CYCLES(1000);
     CPU_BLOCK_END();
     return 0;
