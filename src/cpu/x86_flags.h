@@ -362,12 +362,14 @@ AF_SET(void)
             return ((cpu_state.flags_op1 & 0xF) + (cpu_state.flags_op2 & 0xF)) & 0x10;
 
 #ifdef USE_NEW_DYNAREC
+        /* AF is the carry out of bit 3: when the result nibble equals OP1's,
+         * OP2's nibble plus the carry in wrapped, which with a carry in
+         * means OP2's low nibble is Fh. Upstream (2026-10) tests the whole
+         * operand for all ones, which loses AF (e.g. FEh + 1Fh + 1). */
         case FLAGS_ADC8:
-            return ((cpu_state.flags_res & 0xf) < (cpu_state.flags_op1 & 0xf)) || ((cpu_state.flags_res & 0xf) == (cpu_state.flags_op1 & 0xf) && cpu_state.flags_op2 == 0xff);
         case FLAGS_ADC16:
-            return ((cpu_state.flags_res & 0xf) < (cpu_state.flags_op1 & 0xf)) || ((cpu_state.flags_res & 0xf) == (cpu_state.flags_op1 & 0xf) && cpu_state.flags_op2 == 0xffff);
         case FLAGS_ADC32:
-            return ((cpu_state.flags_res & 0xf) < (cpu_state.flags_op1 & 0xf)) || ((cpu_state.flags_res & 0xf) == (cpu_state.flags_op1 & 0xf) && cpu_state.flags_op2 == 0xffffffff);
+            return ((cpu_state.flags_res & 0xf) < (cpu_state.flags_op1 & 0xf)) || ((cpu_state.flags_res & 0xf) == (cpu_state.flags_op1 & 0xf) && (cpu_state.flags_op2 & 0xf) == 0xf);
 #endif
 
         case FLAGS_SUB8:
