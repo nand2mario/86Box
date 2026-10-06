@@ -187,6 +187,8 @@ opMOV_seg_w_a16(uint32_t fetchdat)
             op_loadseg(new_seg, &cpu_state.seg_ss);
             if (cpu_state.abrt)
                 return 1;
+            if (!iss_ss_chain)
+                return 0;   /* the caller runs the next instruction itself */
             cpu_state.oldpc  = cpu_state.pc;
             cpu_state.op32   = use32;
             cpu_state.ssegs  = 0;
@@ -236,6 +238,8 @@ opMOV_seg_w_a32(uint32_t fetchdat)
             op_loadseg(new_seg, &cpu_state.seg_ss);
             if (cpu_state.abrt)
                 return 1;
+            if (!iss_ss_chain)
+                return 0;   /* the caller runs the next instruction itself */
             cpu_state.oldpc  = cpu_state.pc;
             cpu_state.op32   = use32;
             cpu_state.ssegs  = 0;

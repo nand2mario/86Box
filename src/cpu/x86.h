@@ -55,6 +55,9 @@ extern int keyboardtimer;
 extern int trap;
 extern int optype;
 extern int stack32;
+/* MOV SS / POP SS run the next instruction within the op (86Box's interrupt
+ * shadow); 0 makes them end there (cosim86: one z486 issue per step). */
+extern int iss_ss_chain;
 extern int oldcpl;
 extern int cpl_override;
 extern int nmi_enable;
