@@ -799,6 +799,10 @@ PUSHL(uint32_t v)
 static inline void
 PUSHL_SEL(uint32_t v)
 {
+    if (iss_sel_push32) {               /* the 386 microcode writes the whole dword */
+        PUSHL(v & 0xffff);
+        return;
+    }
     if (cpu_16bitbus) {
         PUSHW(v >> 16);
         PUSHW(v & 0xffff);

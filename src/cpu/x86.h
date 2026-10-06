@@ -58,6 +58,9 @@ extern int stack32;
 /* MOV SS / POP SS run the next instruction within the op (86Box's interrupt
  * shadow); 0 makes them end there (cosim86: one z486 issue per step). */
 extern int iss_ss_chain;
+/* A selector pushed into a 32-bit interrupt/gate frame: 86Box writes 16 bits
+ * on a 386/486; 1 writes it zero-extended as a dword, as z486's microcode. */
+extern int iss_sel_push32;
 extern int oldcpl;
 extern int cpl_override;
 extern int nmi_enable;
