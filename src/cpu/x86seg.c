@@ -2312,7 +2312,7 @@ taskswitch286(uint16_t seg, uint16_t *segdat, int is32)
         flushmmucache();
 
         cpu_state.pc     = new_pc;
-        cpu_state.flags  = new_flags;
+        cpu_state.flags  = (new_flags & 0x7fd5) | 2; /* fixed EFLAGS bits (z486) */
         cpu_state.eflags = new_flags >> 16;
         cpu_386_flags_extract();
 
@@ -2505,7 +2505,7 @@ taskswitch286(uint16_t seg, uint16_t *segdat, int is32)
         msw |= 8;
 
         cpu_state.pc    = new_pc;
-        cpu_state.flags = new_flags;
+        cpu_state.flags = (new_flags & 0x7fd5) | 2; /* fixed EFLAGS bits (z486) */
         cpu_386_flags_extract();
 
         ldt.seg   = new_ldt;
