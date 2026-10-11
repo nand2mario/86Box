@@ -2239,7 +2239,8 @@ taskswitch286(uint16_t seg, uint16_t *segdat, int is32)
             cpu_state.flags &= ~NT_FLAG;
 
         cpu_386_flags_rebuild();
-        writememl(tr.base, 0x1C, cr3);
+        /* The old task's CR3 is not saved: the 386 SAVE_TASK microcode writes
+         * only selectors, GPRs, EFLAGS and EIP (z486). */
         writememl(tr.base, 0x20, cpu_state.pc);
         writememl(tr.base, 0x24, cpu_state.flags | (cpu_state.eflags << 16));
 
