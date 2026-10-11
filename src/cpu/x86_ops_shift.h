@@ -941,14 +941,15 @@ opD3_l_a32(uint32_t fetchdat)
         return 1;                                             \
     if (count) {                                              \
         int      tempc;                                       \
-        uint32_t templ;                                       \
+        uint64_t templ;                                       \
         int      tempo = (tempw >> 15) & 1;                   \
-        tempc = ((tempw << (count - 1)) & (1 << 15)) ? 1 : 0; \
-        templ = (tempw << 16) | cpu_state.regs[cpu_reg].w;    \
-        if (count <= 16)                                      \
-            tempw = templ >> (16 - count);                    \
-        else                                                  \
-            tempw = (templ << count) >> 16;                   \
+        /* A count of 17..31 shifts dest:src:src on the 386/486\
+         * (z486; 386 SingleStepTests). */                    \
+        templ = ((uint64_t) tempw << 32) |                    \
+                ((uint64_t) cpu_state.regs[cpu_reg].w << 16) |\
+                cpu_state.regs[cpu_reg].w;                    \
+        tempc = (templ >> (48 - count)) & 1;                  \
+        tempw = (templ << count) >> 32;                       \
         seteaw(tempw);                                        \
         if (cpu_state.abrt)                                   \
             return 1;                                         \
@@ -992,10 +993,14 @@ opD3_l_a32(uint32_t fetchdat)
         return 1;                                          \
     if (count) {                                           \
         int      tempc;                                    \
-        uint32_t templ;                                    \
+        uint64_t templ;                                    \
         int      tempo = (tempw >> 15) & 1;                \
-        tempc = (tempw >> (count - 1)) & 1;                \
-        templ = tempw | (cpu_state.regs[cpu_reg].w << 16); \
+        /* A count of 17..31 shifts src:src:dest on the     \
+         * 386/486 (z486; 386 SingleStepTests). */         \
+        templ = tempw |                                    \
+                ((uint64_t) cpu_state.regs[cpu_reg].w << 16) |\
+                ((uint64_t) cpu_state.regs[cpu_reg].w << 32);\
+        tempc = (templ >> (count - 1)) & 1;                \
         tempw = templ >> count;                            \
         seteaw(tempw);                                     \
         if (cpu_state.abrt)                                \
