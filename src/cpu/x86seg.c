@@ -2371,6 +2371,7 @@ taskswitch286(uint16_t seg, uint16_t *segdat, int is32)
             }
 
             CS = new_cs;
+            writememw(0, addr + 4, segdat2[2] | 0x100); /* Set accessed bit (386 LOAD_TASK; z486) */
             do_seg_load(&cpu_state.seg_cs, segdat2);
             if ((CPL == 3) && (oldcpl != 3))
                 flushmmucache_nopc();
@@ -2560,6 +2561,7 @@ taskswitch286(uint16_t seg, uint16_t *segdat, int is32)
         }
 
         CS = new_cs;
+        writememw(0, addr + 4, segdat2[2] | 0x100); /* Set accessed bit (386 LOAD_TASK; z486) */
         do_seg_load(&cpu_state.seg_cs, segdat2);
         if ((CPL == 3) && (oldcpl != 3))
             flushmmucache_nopc();
