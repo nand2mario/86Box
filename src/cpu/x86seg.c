@@ -733,7 +733,7 @@ loadcsjmp(uint16_t seg, uint32_t old_pc)
                     optype       = JMP;
                     cpl_override = 1;
                     op_taskswitch286(seg, segdat, segdat[2] & 0x800);
-                    cpu_state.flags &= ~NT_FLAG;
+                    /* NT stays as loaded from the new TSS on a JMP (SDM table 7-2; z486) */
                     cpl_override = 0;
                     return;
 
